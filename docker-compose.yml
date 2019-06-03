@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  es1:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=es1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    networks:
+      - es
+  es2:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.0
+    depends_on:
+      - es1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=es2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.zen.ping.unicast.hosts=es1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - es
+  es3:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.0
+    depends_on:
+      - es1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=es3
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.zen.ping.unicast.hosts=es1
+    volumes:
+      - esdata3:/usr/share/elasticsearch/data
+    networks:
+      - es
+  cerebro:
+    image: lmenezes/cerebro
+    networks:
+      - es
+      - web
+
+volumes:
+  esdata1:
+  esdata2:
+  esdata3:
+
+networks:
+  es:
+    attachable: true
+    internal: true
+  mongo:
+    attachable: true
+    internal: true
+  web:
+    external: true
