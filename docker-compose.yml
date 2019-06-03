@@ -68,10 +68,8 @@ volumes:
 
 networks:
   es:
-    attachable: true
     internal: true
   mongo:
-    attachable: true
     internal: true
   web:
     external: true
